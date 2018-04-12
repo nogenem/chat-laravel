@@ -4,8 +4,8 @@
         <a href="#" data-target="mobile-sidenav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
         <ul class="right hide-on-med-and-down">
             @auth
-                <li class="{{ Request::url() === route('chat') ? 'active' : '' }}">
-                    <a href="{{ route('chat') }}">Chat</a>
+                <li class="{{ Request::url() === route('chat.index') ? 'active' : '' }}">
+                    <a href="{{ route('chat.index') }}">Chat</a>
                 </li>
             @else
                 <li class="{{ Request::url() === route('login') ? 'active' : '' }}">
@@ -21,8 +21,8 @@
 
 <ul class="sidenav" id="mobile-sidenav">
     @auth
-        <li class="{{ Request::url() === route('chat') ? 'active' : '' }}">
-            <a href="{{ route('chat') }}">Chat</a>
+        <li class="{{ Request::url() === route('chat.index') ? 'active' : '' }}">
+            <a href="{{ route('chat.index') }}">Chat</a>
         </li>
     @else
         <li class="{{ Request::url() === route('login') ? 'active' : '' }}">

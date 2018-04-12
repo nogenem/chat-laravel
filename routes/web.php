@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     if(Auth::check()) {
-        return redirect()->route('chat');
+        return redirect()->route('chat.index');
     } else {
         return redirect()->route('login');
     }
@@ -21,6 +21,6 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/chat', function() {
-    return 'Ola mundo!!';
+Route::group(['prefix' => 'chat', 'middleware' => ['auth']], function () {
+    Route::get('/', 'ChatController@index')->name('chat.index');
 });
