@@ -7,6 +7,17 @@
                 <li class="{{ Request::url() === route('chat.index') ? 'active' : '' }}">
                     <a href="{{ route('chat.index') }}">Chat</a>
                 </li>
+                <li>
+                    <a href="{{ route('logout') }}" 
+                        onclick="event.preventDefault();
+                                    document.getElementById('logout-form').submit();">
+                        {{ __('Logout') }}
+                    </a>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
             @else
                 <li class="{{ Request::url() === route('login') ? 'active' : '' }}">
                     <a href="{{ route('login') }}">Login</a>
