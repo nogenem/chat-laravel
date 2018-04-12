@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\User;
 
 class ChatController extends Controller
 {
@@ -13,6 +14,7 @@ class ChatController extends Controller
      */
     public function index()
     {
-        return view('chat.index');
+        $users = User::where('id', '<>', auth()->id())->get();
+        return view('chat.index', compact('users'));
     }
 }
