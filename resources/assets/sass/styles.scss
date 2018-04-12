@@ -1,0 +1,37 @@
+.chat-users-container {
+    height: calc(90vh - 3px);
+    margin-top: 3px;
+    background-color: #f5f5f5;
+}
+
+.chat-container {
+    height: 90vh;
+}
+
+.chat {
+    list-style: none;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.chat__msg {
+    padding: 10px;
+    border: #ccc 1px solid;
+    border-radius: 10px;
+    max-width: 70%;
+    margin-bottom: 10px;
+}
+
+.chat__msg--friend {
+    background-color: #0084ff;
+    color: white;
+    align-self: flex-start;
+}
+
+.chat__msg--me {
+    background-color: #f1f0f0;
+    align-self: flex-end;
+}
