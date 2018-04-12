@@ -5,3 +5,6 @@
  */
 
 require('./bootstrap');
+
+const elem = document.querySelector('.sidenav');
+M.Sidenav.init(elem, {});

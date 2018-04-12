@@ -765,6 +765,9 @@ module.exports = __webpack_require__(30);
 
 __webpack_require__(9);
 
+var elem = document.querySelector('.sidenav');
+M.Sidenav.init(elem, {});
+
 /***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
