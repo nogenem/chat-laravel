@@ -14,7 +14,10 @@
     "node": true
   },
   "globals": {
-    "M": true
+    "M": true,
+    "axios": true,
+    "Echo": true,
+    "io": true
   },
   "rules": {
     "no-use-before-define": "off",
