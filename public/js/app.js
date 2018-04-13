@@ -789,18 +789,22 @@ var ChatController = function () {
     this.chatContainer = document.getElementById("chat-container");
     this.chat = this.chatContainer.querySelector(".chat");
     this.chatRow = document.getElementById("chat-row");
+    this.textarea = document.getElementById("chat-message");
 
     this.messages = [];
     this.talkingToId = -1;
 
     this.onUserPanelClicked = this.onUserPanelClicked.bind(this);
+    this.onMessageSend = this.onMessageSend.bind(this);
     this.showMessages = this.showMessages.bind(this);
+    this.addMessageToChat = this.addMessageToChat.bind(this);
   }
 
   _createClass(ChatController, [{
     key: "init",
     value: function init() {
       this.usersContainer.getElementsByTagName("ul")[0].addEventListener("click", this.onUserPanelClicked);
+      this.textarea.addEventListener("keydown", this.onMessageSend);
     }
   }, {
     key: "onUserPanelClicked",
@@ -835,6 +839,28 @@ var ChatController = function () {
       });
     }
   }, {
+    key: "onMessageSend",
+    value: function onMessageSend(e) {
+      var _this2 = this;
+
+      if ((e.key === "Enter" || e.keyCode === 13) && !e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.textarea.setAttribute("disabled", true);
+        axios.post("/chat/sendMessage", {
+          body: this.textarea.value,
+          to: this.talkingToId
+        }).then(function (resp) {
+          _this2.addMessageToChat(resp.data);
+          _this2.textarea.value = "";
+          _this2.textarea.removeAttribute("disabled");
+        }).catch(function (err) {
+          console.error(err.response.data.errors);
+        });
+      }
+    }
+  }, {
     key: "showMessages",
     value: function showMessages() {
       var friend = this.talkingToId;
@@ -844,6 +870,17 @@ var ChatController = function () {
 
       this.chat.innerHTML = lis.join("");
       this.chatContainer.style.display = "block";
+      this.chatRow.scrollTop = this.chatRow.scrollHeight;
+    }
+  }, {
+    key: "addMessageToChat",
+    value: function addMessageToChat(msg) {
+      if (Array.isArray(msg)) return;
+
+      var friend = this.talkingToId;
+
+      this.messages.push(msg);
+      this.chat.innerHTML += "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
       this.chatRow.scrollTop = this.chatRow.scrollHeight;
     }
   }]);

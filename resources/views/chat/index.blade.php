@@ -40,7 +40,7 @@
                 <div class="row mb-0">
                     <div class="col s12">
                         <div class="input-field m-0">
-                            <input id="chat-message" type="text" name="message" class="mb-0" placeholder="Digite uma mensagem aqui" required autofocus>
+                            <textarea id="chat-message" name="message" class="materialize-textarea mb-0" placeholder="Digite uma mensagem aqui" required autofocus rows="1"></textarea>
                         </div>
                     </div>
                 </div>
