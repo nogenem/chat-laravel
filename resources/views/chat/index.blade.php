@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="row mb-0">
-    <div class="col l3 m1 s2 chat-users-container">
+    <div id="chat-users-container" class="col l3 m1 s2">
         <h5 class="hide-on-med-and-down">Usuarios</h5>
         <ul>
             @foreach ($users as $user)
-                <li class="col s12 chat-user">
+                <li class="col s12 chat-user" data-id="{{ $user->id }}">
                     <div class="row valign-wrapper mb-5 mt-5">
                         <div class="col m12 l2 valign-wrapper img-container">
                             <img src="http://via.placeholder.com/50x50" alt="" class="circle responsive-img">
@@ -27,7 +27,7 @@
             @endforeach
         </ul>
     </div>
-    <div class="col l9 m11 s10 chat-container">
+    <div id="chat-container" class="col l9 m11 s10">
         <div id="chat-row" class="row mb-0" style="height: 80vh; overflow-y: auto;">
             <div class="col s12">
                 <ul class="chat"></ul>
