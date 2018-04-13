@@ -2,6 +2,9 @@ class ChatController {
   constructor() {
     this.usersContainer = document.getElementById("chat-users-container");
     this.chatContainer = document.getElementById("chat-container");
+    this.chat = this.chatContainer.querySelector(".chat");
+    this.chatRow = document.getElementById("chat-row");
+
     this.messages = [];
     this.talkingToId = -1;
 
@@ -47,7 +50,6 @@ class ChatController {
   }
 
   showMessages() {
-    const chat = this.chatContainer.querySelector(".chat");
     const friend = this.talkingToId;
     const lis = this.messages.map(
       msg =>
@@ -56,8 +58,9 @@ class ChatController {
         }">${msg.body}</li>`
     );
 
-    chat.innerHTML = lis.join("");
+    this.chat.innerHTML = lis.join("");
     this.chatContainer.style.display = "block";
+    this.chatRow.scrollTop = this.chatRow.scrollHeight;
   }
 }
 

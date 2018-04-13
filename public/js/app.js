@@ -787,6 +787,9 @@ var ChatController = function () {
 
     this.usersContainer = document.getElementById("chat-users-container");
     this.chatContainer = document.getElementById("chat-container");
+    this.chat = this.chatContainer.querySelector(".chat");
+    this.chatRow = document.getElementById("chat-row");
+
     this.messages = [];
     this.talkingToId = -1;
 
@@ -834,14 +837,14 @@ var ChatController = function () {
   }, {
     key: "showMessages",
     value: function showMessages() {
-      var chat = this.chatContainer.querySelector(".chat");
       var friend = this.talkingToId;
       var lis = this.messages.map(function (msg) {
         return "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
       });
 
-      chat.innerHTML = lis.join("");
+      this.chat.innerHTML = lis.join("");
       this.chatContainer.style.display = "block";
+      this.chatRow.scrollTop = this.chatRow.scrollHeight;
     }
   }]);
 
