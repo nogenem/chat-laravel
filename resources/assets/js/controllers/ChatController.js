@@ -48,6 +48,7 @@ class ChatController {
         this.unreadMessages[msg.from] += 1;
         this.updateUnreadMessages(msg.from);
       }
+      this.displayLastMsg(msg);
     });
   }
 
@@ -144,6 +145,15 @@ class ChatController {
     badge.textContent = !n ? "" : n;
     if (!n && display === "inline-block") badge.style.display = "none";
     if (n && display === "none") badge.style.display = "inline-block";
+  }
+
+  displayLastMsg(msg) {
+    const span = this.usersContainer.querySelector(
+      `li[data-id="${msg.from}"] span.last-message`
+    );
+
+    span.innerHTML = msg.body;
+    if (span.style.display === "none") span.style.display = "block";
   }
 }
 

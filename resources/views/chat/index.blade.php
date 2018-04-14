@@ -17,8 +17,8 @@
                                 <div class="text-muted text-small">12/12/2018</div>
                             </div>
                             <div class="container-flex">
-                                <span class="truncate text-muted">Ultima mensagem enviada</span>
-                                <span class="round-badge blue white-text" style="display: none;">0</span>
+                                <span class="truncate text-muted last-message" style="display: none;"></span>
+                                <span class="round-badge blue white-text" style="display: none;"></span>
                             </div>
                         </div>
                     </div>

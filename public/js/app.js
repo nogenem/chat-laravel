@@ -4724,6 +4724,7 @@ var ChatController = function () {
           _this.unreadMessages[msg.from] += 1;
           _this.updateUnreadMessages(msg.from);
         }
+        _this.displayLastMsg(msg);
       });
     }
   }, {
@@ -4818,6 +4819,14 @@ var ChatController = function () {
       badge.textContent = !n ? "" : n;
       if (!n && display === "inline-block") badge.style.display = "none";
       if (n && display === "none") badge.style.display = "inline-block";
+    }
+  }, {
+    key: "displayLastMsg",
+    value: function displayLastMsg(msg) {
+      var span = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] span.last-message");
+
+      span.innerHTML = msg.body;
+      if (span.style.display === "none") span.style.display = "block";
     }
   }]);
 
