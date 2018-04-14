@@ -18,8 +18,34 @@ class ChatController extends Controller
      */
     public function index()
     {
-        $users = User::where('id', '<>', auth()->id())->get();
-        return view('chat.index', compact('users'));
+        $myId = auth()->id();
+        $users = User::where('id', '<>', $myId)->get();
+
+        // Versão 'raw', não converte para model Message...
+        // $ret = DB::select('
+        //     select m1.* from messages m1
+        //     inner join (select max(m.created_at) as latest, m.from from messages m where m.to = ? and m.from <> ? group by m.from) m2
+        //     on m1.from = m2.from and m1.created_at = m2.latest
+        //     where m1.to = ? and m1.from <> ?
+        // ', [$myId, $myId, $myId, $myId]);
+
+        // $myId vem do próprio Laravel então não deve ter problema de usar
+        // com DB::raw()...
+        $ret = Message::join(DB::raw("
+            (select max(m.created_at) as latest, m.from from messages m where m.to = $myId and m.from <> $myId group by m.from) m2
+        "), function ($query) {
+            $query->on('messages.from', 'm2.from')->on('messages.created_at', 'm2.latest');
+        })
+            ->where('messages.to', $myId)
+            ->where('messages.from', "<>", $myId)
+            ->get();
+
+        $msgs = collect();
+        foreach ($ret as $msg) {
+            $msgs->put($msg->from, $msg);
+        }
+
+        return view('chat.index', compact('users', 'msgs'));
     }
 
     public function getMessagesWith($user_id, Request $request)

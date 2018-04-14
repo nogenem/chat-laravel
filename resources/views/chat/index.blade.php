@@ -14,10 +14,15 @@
                         <div class="col s10 hide-on-med-and-down">
                             <div class="container-flex">
                                 <div class="truncate">{{ ucwords($user->name) }}</div>
-                                <div class="text-muted text-small last-message-date" style="display: none;"></div>
+                                <div class="text-muted text-small last-message-date">
+                                    {{isset($msgs[$user->id]) ? 
+                                        $msgs[$user->id]->created_at->diffForHumans(NULL, true, true) : ""}}
+                                </div>
                             </div>
                             <div class="container-flex">
-                                <span class="truncate text-muted last-message" style="display: none;"></span>
+                                <span class="truncate text-muted last-message">
+                                    {!! isset($msgs[$user->id]) ? $msgs[$user->id]->body : "" !!}
+                                </span>
                                 <span class="round-badge blue white-text" style="display: none;"></span>
                             </div>
                         </div>
