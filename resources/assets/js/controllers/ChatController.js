@@ -10,6 +10,7 @@ class ChatController {
     this.textarea = document.getElementById("chat-message");
 
     this.messages = [];
+    this.unreadMessages = {};
     this.myId = -1;
     this.talkingToId = -1;
 
@@ -18,6 +19,7 @@ class ChatController {
     this.showMessages = this.showMessages.bind(this);
     this.addMessageToChat = this.addMessageToChat.bind(this);
     this.startEchoListeners = this.startEchoListeners.bind(this);
+    this.updateUnreadMessages = this.updateUnreadMessages.bind(this);
   }
 
   init() {
@@ -41,6 +43,10 @@ class ChatController {
       const msg = data.message;
       if (msg.from === this.talkingToId) {
         this.addMessageToChat(msg);
+      } else {
+        if (!this.unreadMessages[msg.from]) this.unreadMessages[msg.from] = 0;
+        this.unreadMessages[msg.from] += 1;
+        this.updateUnreadMessages(msg.from);
       }
     });
   }
@@ -100,6 +106,10 @@ class ChatController {
 
   showMessages() {
     const friend = this.talkingToId;
+    if (this.unreadMessages[friend]) {
+      this.unreadMessages[friend] = null;
+      this.updateUnreadMessages(friend);
+    }
     const lis = this.messages.map(
       msg =>
         `<li class="chat__msg ${
@@ -122,6 +132,18 @@ class ChatController {
       msg.from === friend ? "chat__msg--friend" : "chat__msg--me"
     }">${msg.body}</li>`;
     this.chatRow.scrollTop = this.chatRow.scrollHeight;
+  }
+
+  updateUnreadMessages(userId) {
+    const n = this.unreadMessages[userId];
+    const badge = this.usersContainer.querySelector(
+      `li[data-id="${userId}"] span.round-badge`
+    );
+    const { display } = badge.style;
+
+    badge.textContent = !n ? "" : n;
+    if (!n && display === "inline-block") badge.style.display = "none";
+    if (n && display === "none") badge.style.display = "inline-block";
   }
 }
 

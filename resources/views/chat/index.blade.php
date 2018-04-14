@@ -18,7 +18,7 @@
                             </div>
                             <div class="container-flex">
                                 <span class="truncate text-muted">Ultima mensagem enviada</span>
-                                <span class="round-badge blue white-text">4</span>
+                                <span class="round-badge blue white-text" style="display: none;">0</span>
                             </div>
                         </div>
                     </div>

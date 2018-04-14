@@ -4681,6 +4681,7 @@ var ChatController = function () {
     this.textarea = document.getElementById("chat-message");
 
     this.messages = [];
+    this.unreadMessages = {};
     this.myId = -1;
     this.talkingToId = -1;
 
@@ -4689,6 +4690,7 @@ var ChatController = function () {
     this.showMessages = this.showMessages.bind(this);
     this.addMessageToChat = this.addMessageToChat.bind(this);
     this.startEchoListeners = this.startEchoListeners.bind(this);
+    this.updateUnreadMessages = this.updateUnreadMessages.bind(this);
   }
 
   _createClass(ChatController, [{
@@ -4717,6 +4719,10 @@ var ChatController = function () {
         var msg = data.message;
         if (msg.from === _this.talkingToId) {
           _this.addMessageToChat(msg);
+        } else {
+          if (!_this.unreadMessages[msg.from]) _this.unreadMessages[msg.from] = 0;
+          _this.unreadMessages[msg.from] += 1;
+          _this.updateUnreadMessages(msg.from);
         }
       });
     }
@@ -4778,6 +4784,10 @@ var ChatController = function () {
     key: "showMessages",
     value: function showMessages() {
       var friend = this.talkingToId;
+      if (this.unreadMessages[friend]) {
+        this.unreadMessages[friend] = null;
+        this.updateUnreadMessages(friend);
+      }
       var lis = this.messages.map(function (msg) {
         return "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
       });
@@ -4796,6 +4806,18 @@ var ChatController = function () {
       this.messages.push(msg);
       this.chat.innerHTML += "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
       this.chatRow.scrollTop = this.chatRow.scrollHeight;
+    }
+  }, {
+    key: "updateUnreadMessages",
+    value: function updateUnreadMessages(userId) {
+      var n = this.unreadMessages[userId];
+      var badge = this.usersContainer.querySelector("li[data-id=\"" + userId + "\"] span.round-badge");
+      var display = badge.style.display;
+
+
+      badge.textContent = !n ? "" : n;
+      if (!n && display === "inline-block") badge.style.display = "none";
+      if (n && display === "none") badge.style.display = "inline-block";
     }
   }]);
 
