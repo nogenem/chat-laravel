@@ -4823,10 +4823,18 @@ var ChatController = function () {
   }, {
     key: "displayLastMsg",
     value: function displayLastMsg(msg) {
+      // msg text
       var span = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] span.last-message");
 
       span.innerHTML = msg.body;
       if (span.style.display === "none") span.style.display = "block";
+
+      // msg date
+      var div = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] div.last-message-date");
+      var date = new Date(msg.created_at).toLocaleDateString();
+
+      div.innerHTML = date;
+      if (div.style.display === "none") div.style.display = "block";
     }
   }]);
 

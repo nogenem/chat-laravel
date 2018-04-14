@@ -14,7 +14,7 @@
                         <div class="col s10 hide-on-med-and-down">
                             <div class="container-flex">
                                 <div class="truncate">{{ ucwords($user->name) }}</div>
-                                <div class="text-muted text-small">12/12/2018</div>
+                                <div class="text-muted text-small last-message-date" style="display: none;"></div>
                             </div>
                             <div class="container-flex">
                                 <span class="truncate text-muted last-message" style="display: none;"></span>
