@@ -4,9 +4,12 @@
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
-    "laravel-echo-server": "^1.2.8"
+    "laravel-echo-server": "^1.3.6"
   },
   "scripts": {
-    "start": "laravel-echo-server start"
+    "start": "laravel-echo-server start",
+    "echo:start": "laravel-echo-server start",
+    "echo:init": "laravel-echo-server init",
+    "echo:key": "laravel-echo-server client:add"
   }
 }

@@ -1,3 +1,6 @@
+import Echo from "laravel-echo";
+import io from "socket.io-client";
+
 class ChatController {
   constructor() {
     this.usersContainer = document.getElementById("chat-users-container");
@@ -7,34 +10,46 @@ class ChatController {
     this.textarea = document.getElementById("chat-message");
 
     this.messages = [];
+    this.myId = -1;
     this.talkingToId = -1;
 
     this.onUserPanelClicked = this.onUserPanelClicked.bind(this);
     this.onMessageSend = this.onMessageSend.bind(this);
     this.showMessages = this.showMessages.bind(this);
     this.addMessageToChat = this.addMessageToChat.bind(this);
+    this.startEchoListeners = this.startEchoListeners.bind(this);
   }
 
   init() {
-    this.usersContainer
-      .getElementsByTagName("ul")[0]
-      .addEventListener("click", this.onUserPanelClicked);
+    const ul = this.usersContainer.getElementsByTagName("ul")[0];
+
+    this.myId = +ul.dataset.myUserid;
+    ul.addEventListener("click", this.onUserPanelClicked);
     this.textarea.addEventListener("keydown", this.onMessageSend);
+
+    window.io = io;
+    window.Echo = new Echo({
+      broadcaster: "socket.io",
+      host: `${window.location.hostname}:6001`
+    });
+
+    this.startEchoListeners();
+  }
+
+  startEchoListeners() {
+    window.Echo.private(`chat.${this.myId}`).listen("NewMessage", data => {
+      const msg = data.message;
+      if (msg.from === this.talkingToId) {
+        this.addMessageToChat(msg);
+      }
+    });
   }
 
   onUserPanelClicked(e) {
     e.preventDefault();
     e.stopPropagation();
 
-    let li = null;
-    const { path } = e;
-    for (let i = 0; i < path.length; i++) {
-      if (path[i].nodeName === "LI") {
-        li = path[i];
-        break;
-      }
-    }
-
+    const li = this.getFirstLi(e);
     if (!li) return;
 
     const userId = li.dataset.id;
@@ -51,6 +66,14 @@ class ChatController {
         this.talkingToId = -1;
         this.chatContainer.style.display = "none";
       });
+  }
+
+  getFirstLi(e) {
+    let node = e.target;
+    while (node && node.nodeName !== "LI") {
+      node = node.parentNode;
+    }
+    return node;
   }
 
   onMessageSend(e) {
@@ -70,7 +93,7 @@ class ChatController {
           this.textarea.removeAttribute("disabled");
         })
         .catch(err => {
-          console.error(err.response.data.errors);
+          console.error(err.response ? err.response : err);
         });
     }
   }

@@ -7,6 +7,8 @@ use App\User;
 use App\Message;
 use DB;
 
+use App\Events\NewMessage;
+
 class ChatController extends Controller
 {
     /**
@@ -57,6 +59,7 @@ class ChatController extends Controller
         ]);
 
         if ($msg) {
+            broadcast(new NewMessage($msg))->toOthers();
             return $msg->toJson();
         } else {
             // TODO: tratar melhor problemas...

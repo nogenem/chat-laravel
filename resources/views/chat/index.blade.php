@@ -4,7 +4,7 @@
 <div class="row mb-0">
     <div id="chat-users-container" class="col l3 m1 s2">
         <h5 class="hide-on-med-and-down">Usuarios</h5>
-        <ul>
+        <ul data-my-userid="{{ auth()->id() }}">
             @foreach ($users as $user)
                 <li class="col s12 chat-user" data-id="{{ $user->id }}">
                     <div class="row valign-wrapper mb-5 mt-5">
