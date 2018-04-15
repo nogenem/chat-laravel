@@ -16,7 +16,7 @@
                                 <div class="truncate">{{ ucwords($user->name) }}</div>
                                 <div class="text-muted text-small last-message-date">
                                     {{isset($msgs[$user->id]) ? 
-                                        $msgs[$user->id]->created_at->diffForHumans(NULL, true, true) : ""}}
+                                        $msgs[$user->id]->created_at->toDateString() : ""}}
                                 </div>
                             </div>
                             <div class="container-flex">

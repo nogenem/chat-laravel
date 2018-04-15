@@ -1,3 +1,11 @@
+const formatDate = dateStr => {
+  const date = new Date(dateStr);
+  const d = `0${date.getDate()}`.slice(-2);
+  const m = `0${date.getMonth() + 1}`.slice(-2);
+
+  return `${date.getFullYear()}-${m}-${d}`;
+};
+
 class ChatUsersController {
   constructor(chatController) {
     this.chatController = chatController;
@@ -75,7 +83,7 @@ class ChatUsersController {
     const div = this.usersContainer.querySelector(
       `li[data-id="${msg.from}"] div.last-message-date`
     );
-    const date = new Date(msg.created_at).toLocaleDateString();
+    const date = formatDate(msg.created_at);
 
     div.innerHTML = date;
     if (div.style.display === "none") div.style.display = "block";
