@@ -98,7 +98,7 @@ module.exports = g;
 
 
 var bind = __webpack_require__(26);
-var isBuffer = __webpack_require__(62);
+var isBuffer = __webpack_require__(63);
 
 /*global toString:true*/
 
@@ -2627,7 +2627,7 @@ Transport.prototype.onClose = function () {
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(1);
-var normalizeHeaderName = __webpack_require__(64);
+var normalizeHeaderName = __webpack_require__(65);
 
 var DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -4385,12 +4385,12 @@ module.exports = function bind(fn, thisArg) {
 
 
 var utils = __webpack_require__(1);
-var settle = __webpack_require__(65);
-var buildURL = __webpack_require__(67);
-var parseHeaders = __webpack_require__(68);
-var isURLSameOrigin = __webpack_require__(69);
+var settle = __webpack_require__(66);
+var buildURL = __webpack_require__(68);
+var parseHeaders = __webpack_require__(69);
+var isURLSameOrigin = __webpack_require__(70);
 var createError = __webpack_require__(28);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(70);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(71);
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -4487,7 +4487,7 @@ module.exports = function xhrAdapter(config) {
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(71);
+      var cookies = __webpack_require__(72);
 
       // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -4571,7 +4571,7 @@ module.exports = function xhrAdapter(config) {
 "use strict";
 
 
-var enhanceError = __webpack_require__(66);
+var enhanceError = __webpack_require__(67);
 
 /**
  * Create an Error with the specified message, config, error code, request and response.
@@ -4632,7 +4632,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(32);
-module.exports = __webpack_require__(79);
+module.exports = __webpack_require__(80);
 
 
 /***/ }),
@@ -4644,7 +4644,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__controllers_ChatController__ = __webpack_require__(33);
 
 
-__webpack_require__(59);
+__webpack_require__(60);
 
 var elem = document.querySelector(".sidenav");
 M.Sidenav.init(elem, {});
@@ -4663,9 +4663,11 @@ if (window.location.pathname.startsWith("/chat")) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_laravel_echo__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_socket_io_client__ = __webpack_require__(35);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_socket_io_client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_socket_io_client__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ChatUsersController__ = __webpack_require__(59);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 
 
 
@@ -4674,33 +4676,26 @@ var ChatController = function () {
   function ChatController() {
     _classCallCheck(this, ChatController);
 
-    this.usersContainer = document.getElementById("chat-users-container");
+    this.chatUsersController = new __WEBPACK_IMPORTED_MODULE_2__ChatUsersController__["a" /* default */](this);
+
     this.chatContainer = document.getElementById("chat-container");
     this.chat = this.chatContainer.querySelector(".chat");
     this.chatRow = document.getElementById("chat-row");
     this.textarea = document.getElementById("chat-message");
 
     this.messages = [];
-    this.unreadMessages = {};
-    this.myId = -1;
+    this.userId = -1;
     this.talkingToId = -1;
+    this.sendingMsg = false;
 
-    this.onUserPanelClicked = this.onUserPanelClicked.bind(this);
-    this.onMessageSend = this.onMessageSend.bind(this);
-    this.showMessages = this.showMessages.bind(this);
-    this.addMessageToChat = this.addMessageToChat.bind(this);
-    this.startEchoListeners = this.startEchoListeners.bind(this);
-    this.updateUnreadMessages = this.updateUnreadMessages.bind(this);
+    this.onSendMessage = this.onSendMessage.bind(this);
+    this.getMessageLi = this.getMessageLi.bind(this);
   }
 
   _createClass(ChatController, [{
     key: "init",
     value: function init() {
-      var ul = this.usersContainer.getElementsByTagName("ul")[0];
-
-      this.myId = +ul.dataset.myUserid;
-      ul.addEventListener("click", this.onUserPanelClicked);
-      this.textarea.addEventListener("keydown", this.onMessageSend);
+      this.textarea.addEventListener("keydown", this.onSendMessage);
 
       window.io = __WEBPACK_IMPORTED_MODULE_1_socket_io_client___default.a;
       window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
@@ -4708,6 +4703,7 @@ var ChatController = function () {
         host: window.location.hostname + ":6001"
       });
 
+      this.chatUsersController.init();
       this.startEchoListeners();
     }
   }, {
@@ -4715,83 +4711,75 @@ var ChatController = function () {
     value: function startEchoListeners() {
       var _this = this;
 
-      window.Echo.private("chat." + this.myId).listen("NewMessage", function (data) {
+      window.Echo.private("chat." + this.userId).listen("NewMessage", function (data) {
         var msg = data.message;
         if (msg.from === _this.talkingToId) {
           _this.addMessageToChat(msg);
         } else {
-          if (!_this.unreadMessages[msg.from]) _this.unreadMessages[msg.from] = 0;
-          _this.unreadMessages[msg.from] += 1;
-          _this.updateUnreadMessages(msg.from);
+          _this.chatUsersController.updateUnreadMessages({
+            from: msg.from,
+            toDelete: false
+          });
         }
-        _this.displayLastMsg(msg);
+        _this.chatUsersController.displayLastMsg(msg);
       });
     }
   }, {
-    key: "onUserPanelClicked",
-    value: function onUserPanelClicked(e) {
-      var _this2 = this;
-
-      e.preventDefault();
-      e.stopPropagation();
-
-      var li = this.getFirstLi(e);
-      if (!li) return;
-
-      var userId = li.dataset.id;
-      axios.get("/chat/getMessagesWith/" + userId).then(function (resp) {
-        _this2.messages = resp.data;
-        _this2.talkingToId = +userId;
-        _this2.showMessages();
-      }).catch(function (err) {
-        console.error(err);
-        _this2.messages = [];
-        _this2.talkingToId = -1;
-        _this2.chatContainer.style.display = "none";
-      });
-    }
-  }, {
-    key: "getFirstLi",
-    value: function getFirstLi(e) {
-      var node = e.target;
-      while (node && node.nodeName !== "LI") {
-        node = node.parentNode;
+    key: "onMessagesReceived",
+    value: function onMessagesReceived(msgs, talkingToId) {
+      if (msgs === null) {
+        // Error
+        this.messages = [];
+        this.talkingToId = -1;
+        this.chatContainer.style.display = "none";
+      } else {
+        this.talkingToId = talkingToId;
+        this.messages = msgs;
+        this.showMessages();
       }
-      return node;
     }
   }, {
-    key: "onMessageSend",
-    value: function onMessageSend(e) {
-      var _this3 = this;
+    key: "onSendMessage",
+    value: function onSendMessage(e) {
+      var _this2 = this;
 
       if ((e.key === "Enter" || e.keyCode === 13) && !e.shiftKey) {
         e.preventDefault();
         e.stopPropagation();
 
+        if (this.sendingMsg) return;
+
         this.textarea.setAttribute("disabled", true);
+        this.sendingMsg = true;
         axios.post("/chat/sendMessage", {
           body: this.textarea.value,
           to: this.talkingToId
         }).then(function (resp) {
-          _this3.addMessageToChat(resp.data);
-          _this3.textarea.value = "";
-          _this3.textarea.removeAttribute("disabled");
+          _this2.addMessageToChat(resp.data);
+          _this2.textarea.value = "";
+          _this2.textarea.removeAttribute("disabled");
+          _this2.sendingMsg = false;
         }).catch(function (err) {
           console.error(err.response ? err.response : err);
+          _this2.textarea.removeAttribute("disabled");
+          _this2.sendingMsg = false;
         });
       }
     }
   }, {
+    key: "getMessageLi",
+    value: function getMessageLi(msg) {
+      var friend = this.talkingToId;
+      return "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
+    }
+  }, {
     key: "showMessages",
     value: function showMessages() {
-      var friend = this.talkingToId;
-      if (this.unreadMessages[friend]) {
-        this.unreadMessages[friend] = null;
-        this.updateUnreadMessages(friend);
-      }
-      var lis = this.messages.map(function (msg) {
-        return "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
+      this.chatUsersController.updateUnreadMessages({
+        from: this.talkingToId,
+        toDelete: true
       });
+      var lis = this.messages.map(this.getMessageLi);
 
       this.chat.innerHTML = lis.join("");
       this.chatContainer.style.display = "block";
@@ -4802,39 +4790,9 @@ var ChatController = function () {
     value: function addMessageToChat(msg) {
       if (Array.isArray(msg)) return;
 
-      var friend = this.talkingToId;
-
       this.messages.push(msg);
-      this.chat.innerHTML += "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
+      this.chat.innerHTML += this.getMessageLi(msg);
       this.chatRow.scrollTop = this.chatRow.scrollHeight;
-    }
-  }, {
-    key: "updateUnreadMessages",
-    value: function updateUnreadMessages(userId) {
-      var n = this.unreadMessages[userId];
-      var badge = this.usersContainer.querySelector("li[data-id=\"" + userId + "\"] span.round-badge");
-      var display = badge.style.display;
-
-
-      badge.textContent = !n ? "" : n;
-      if (!n && display === "inline-block") badge.style.display = "none";
-      if (n && display === "none") badge.style.display = "inline-block";
-    }
-  }, {
-    key: "displayLastMsg",
-    value: function displayLastMsg(msg) {
-      // msg text
-      var span = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] span.last-message");
-
-      span.innerHTML = msg.body;
-      if (span.style.display === "none") span.style.display = "block";
-
-      // msg date
-      var div = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] div.last-message-date");
-      var date = new Date(msg.created_at).toLocaleDateString();
-
-      div.innerHTML = date;
-      if (div.style.display === "none") div.style.display = "block";
     }
   }]);
 
@@ -9293,6 +9251,109 @@ Backoff.prototype.setJitter = function(jitter){
 
 /***/ }),
 /* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ChatUsersController = function () {
+  function ChatUsersController(chatController) {
+    _classCallCheck(this, ChatUsersController);
+
+    this.chatController = chatController;
+    this.usersContainer = document.getElementById("chat-users-container");
+
+    this.unreadMessages = {};
+
+    this.onUserPanelClicked = this.onUserPanelClicked.bind(this);
+  }
+
+  _createClass(ChatUsersController, [{
+    key: "init",
+    value: function init() {
+      var ul = this.usersContainer.getElementsByTagName("ul")[0];
+
+      this.chatController.userId = +ul.dataset.myUserid;
+      ul.addEventListener("click", this.onUserPanelClicked);
+    }
+  }, {
+    key: "onUserPanelClicked",
+    value: function onUserPanelClicked(e) {
+      var _this = this;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var li = this.getFirstLi(e);
+      if (!li) return;
+
+      var userId = li.dataset.id;
+      axios.get("/chat/getMessagesWith/" + userId).then(function (resp) {
+        _this.chatController.onMessagesReceived(resp.data, +userId);
+      }).catch(function (err) {
+        console.error(err);
+        _this.chatController.onMessagesReceived(null, -1);
+      });
+    }
+  }, {
+    key: "getFirstLi",
+    value: function getFirstLi(e) {
+      var node = e.target;
+      while (node && node.nodeName !== "LI") {
+        node = node.parentNode;
+      }
+      return node;
+    }
+  }, {
+    key: "updateUnreadMessages",
+    value: function updateUnreadMessages(_ref) {
+      var from = _ref.from,
+          toDelete = _ref.toDelete;
+
+      if (toDelete) {
+        if (!this.unreadMessages[from]) return;
+        this.unreadMessages[from] = null;
+      } else {
+        if (!this.unreadMessages[from]) this.unreadMessages[from] = 0;
+        this.unreadMessages[from] += 1;
+      }
+
+      var n = this.unreadMessages[from];
+      var badge = this.usersContainer.querySelector("li[data-id=\"" + from + "\"] span.round-badge");
+      var display = badge.style.display;
+
+
+      badge.textContent = !n ? "" : n;
+      if (!n && display === "inline-block") badge.style.display = "none";
+      if (n && display === "none") badge.style.display = "inline-block";
+    }
+  }, {
+    key: "displayLastMsg",
+    value: function displayLastMsg(msg) {
+      // msg text
+      var span = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] span.last-message");
+
+      span.innerHTML = msg.body;
+      if (span.style.display === "none") span.style.display = "block";
+
+      // msg date
+      var div = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] div.last-message-date");
+      var date = new Date(msg.created_at).toLocaleDateString();
+
+      div.innerHTML = date;
+      if (div.style.display === "none") div.style.display = "block";
+    }
+  }]);
+
+  return ChatUsersController;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (ChatUsersController);
+
+/***/ }),
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9301,7 +9362,7 @@ Backoff.prototype.setJitter = function(jitter){
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
 
-window.axios = __webpack_require__(60);
+window.axios = __webpack_require__(61);
 
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
@@ -9337,13 +9398,13 @@ if (token) {
 // });
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(61);
+module.exports = __webpack_require__(62);
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9351,7 +9412,7 @@ module.exports = __webpack_require__(61);
 
 var utils = __webpack_require__(1);
 var bind = __webpack_require__(26);
-var Axios = __webpack_require__(63);
+var Axios = __webpack_require__(64);
 var defaults = __webpack_require__(13);
 
 /**
@@ -9386,14 +9447,14 @@ axios.create = function create(instanceConfig) {
 
 // Expose Cancel & CancelToken
 axios.Cancel = __webpack_require__(30);
-axios.CancelToken = __webpack_require__(77);
+axios.CancelToken = __webpack_require__(78);
 axios.isCancel = __webpack_require__(29);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(78);
+axios.spread = __webpack_require__(79);
 
 module.exports = axios;
 
@@ -9402,7 +9463,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports) {
 
 /*!
@@ -9429,7 +9490,7 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9437,8 +9498,8 @@ function isSlowBuffer (obj) {
 
 var defaults = __webpack_require__(13);
 var utils = __webpack_require__(1);
-var InterceptorManager = __webpack_require__(72);
-var dispatchRequest = __webpack_require__(73);
+var InterceptorManager = __webpack_require__(73);
+var dispatchRequest = __webpack_require__(74);
 
 /**
  * Create a new instance of Axios
@@ -9515,7 +9576,7 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9534,7 +9595,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9567,7 +9628,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9595,7 +9656,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9668,7 +9729,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9728,7 +9789,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9803,7 +9864,7 @@ module.exports = (
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9846,7 +9907,7 @@ module.exports = btoa;
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9906,7 +9967,7 @@ module.exports = (
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9965,18 +10026,18 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(1);
-var transformData = __webpack_require__(74);
+var transformData = __webpack_require__(75);
 var isCancel = __webpack_require__(29);
 var defaults = __webpack_require__(13);
-var isAbsoluteURL = __webpack_require__(75);
-var combineURLs = __webpack_require__(76);
+var isAbsoluteURL = __webpack_require__(76);
+var combineURLs = __webpack_require__(77);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -10058,7 +10119,7 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10085,7 +10146,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10106,7 +10167,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10127,7 +10188,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10191,7 +10252,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10225,7 +10286,7 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
