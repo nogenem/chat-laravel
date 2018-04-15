@@ -8,7 +8,7 @@
             @foreach ($users as $user)
                 <li class="col s12 chat-user" data-id="{{ $user->id }}">
                     <div class="row valign-wrapper mb-5 mt-5">
-                        <div class="col m12 l2 valign-wrapper img-container">
+                    <div class="col m12 l2 valign-wrapper img-container tooltipped" data-position="right" data-tooltip="{{ $user->name }}">
                             <img src="http://via.placeholder.com/50x50" alt="" class="circle responsive-img">
                         </div>
                         <div class="col s10 hide-on-med-and-down">

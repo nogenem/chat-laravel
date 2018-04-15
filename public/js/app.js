@@ -4646,8 +4646,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 __webpack_require__(60);
 
-var elem = document.querySelector(".sidenav");
-M.Sidenav.init(elem, {});
+var sidenav = document.querySelector(".sidenav");
+M.Sidenav.init(sidenav, {});
+var tooltips = document.querySelectorAll(".tooltipped");
+M.Tooltip.init(tooltips, {});
 
 if (window.location.pathname.startsWith("/chat")) {
   var controller = new __WEBPACK_IMPORTED_MODULE_0__controllers_ChatController__["a" /* default */]();
