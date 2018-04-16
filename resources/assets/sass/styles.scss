@@ -1,6 +1,7 @@
 #chat-users-container {
   height: calc(90vh - 3px);
   margin-top: 3px;
+  min-width: 40px;
   background-color: #f5f5f5;
   overflow-y: auto;
 }
@@ -64,13 +65,17 @@
 
 .chat-user {
   .img-container {
+    justify-content: center;
     padding: 0.1em;
-    position: relative;
+
+    span {
+      position: relative;
+    }
 
     .online-status-icon {
       position: absolute;
-      bottom: 0;
-      right: 2px;
+      bottom: 2px;
+      right: 1px;
     }
   }
 
@@ -90,7 +95,7 @@
 }
 
 @media only screen and (max-width: 992px) {
-  .chat-users-container::-webkit-scrollbar {
+  #chat-users-container::-webkit-scrollbar {
     display: none;
   }
 
@@ -100,8 +105,8 @@
   }
 }
 
-@media only screen and (min-width: 601px) and (max-width: 800px) {
-  .chat-users-container {
+@media only screen and (min-width: 601px) and (max-width: 700px) {
+  #chat-users-container {
     padding: 5px !important;
   }
 }

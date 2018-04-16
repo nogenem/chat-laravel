@@ -23,6 +23,9 @@ Auth::routes();
 
 Route::group(['prefix' => 'chat', 'middleware' => ['auth']], function () {
     Route::get('/', 'ChatController@index')->name('chat.index');
-    Route::get('/getMessagesWith/{user_id}', 'ChatController@getMessagesWith')->name('chat.getMessagesWith');
+    Route::get('/getMessagesWithUser/{user_id}', 'ChatController@getMessagesWithUser')
+        ->name('chat.getMessagesWithUser');
+    Route::get('/getMessagesWithGroup/{group_id}', 'ChatController@getMessagesWithGroup')
+        ->name('chat.getMessagesWithGroup');
     Route::post('/sendMessage', 'ChatController@sendMessage')->name('chat.sendMessage');
 });

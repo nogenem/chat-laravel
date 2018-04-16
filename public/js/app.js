@@ -4689,6 +4689,7 @@ var ChatController = function () {
     this.messages = [];
     this.userId = -1;
     this.talkingToId = -1;
+    this.talkingToType = "";
     this.sendingMsg = false;
 
     this.onSendMessage = this.onSendMessage.bind(this);
@@ -4716,11 +4717,20 @@ var ChatController = function () {
 
       window.Echo.private("chat." + this.userId).listen("NewMessage", function (data) {
         var msg = data.message;
-        if (msg.from === _this.talkingToId) {
+
+        var fromId = msg.from;
+        var fromType = "App.User";
+        if (msg.to_type === "App.Group") {
+          fromId = msg.to_id;
+          fromType = msg.to_type;
+        }
+
+        if (fromId === _this.talkingToId) {
           _this.addMessageToChat(msg);
         } else {
           _this.chatUsersController.updateUnreadMessages({
-            from: msg.from,
+            fromId: fromId,
+            fromType: fromType,
             toDelete: false
           });
         }
@@ -4730,14 +4740,16 @@ var ChatController = function () {
     }
   }, {
     key: "onMessagesReceived",
-    value: function onMessagesReceived(msgs, talkingToId) {
+    value: function onMessagesReceived(msgs, talkingToId, talkingToType) {
       if (msgs === null) {
         // Error
         this.messages = [];
         this.talkingToId = -1;
+        this.talkingToType = "";
         this.chatContainer.style.display = "none";
       } else {
         this.talkingToId = talkingToId;
+        this.talkingToType = talkingToType;
         this.messages = msgs;
         this.showMessages();
       }
@@ -4757,7 +4769,8 @@ var ChatController = function () {
         this.sendingMsg = true;
         axios.post("/chat/sendMessage", {
           body: this.textarea.value,
-          to: this.talkingToId
+          to_id: this.talkingToId,
+          to_type: this.talkingToType
         }).then(function (resp) {
           _this2.addMessageToChat(resp.data);
           _this2.textarea.value = "";
@@ -4773,14 +4786,15 @@ var ChatController = function () {
   }, {
     key: "getMessageLi",
     value: function getMessageLi(msg) {
-      var friend = this.talkingToId;
-      return "<li class=\"chat__msg " + (msg.from === friend ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
+      var me = this.userId;
+      return "<li class=\"chat__msg " + (msg.from !== me ? "chat__msg--friend" : "chat__msg--me") + "\">" + msg.body + "</li>";
     }
   }, {
     key: "showMessages",
     value: function showMessages() {
       this.chatUsersController.updateUnreadMessages({
-        from: this.talkingToId,
+        fromId: this.talkingToId,
+        fromType: this.talkingToType,
         toDelete: true
       });
       var lis = this.messages.map(this.getMessageLi);
@@ -9279,16 +9293,19 @@ var ChatUsersController = function () {
 
     this.unreadMessages = {};
 
+    this.onGroupPanelClicked = this.onGroupPanelClicked.bind(this);
     this.onUserPanelClicked = this.onUserPanelClicked.bind(this);
   }
 
   _createClass(ChatUsersController, [{
     key: "init",
     value: function init() {
-      var ul = this.usersContainer.getElementsByTagName("ul")[0];
+      var uls = this.usersContainer.getElementsByTagName("ul");
 
-      this.chatController.userId = +ul.dataset.myUserid;
-      ul.addEventListener("click", this.onUserPanelClicked);
+      uls[0].addEventListener("click", this.onGroupPanelClicked);
+
+      this.chatController.userId = +uls[1].dataset.myUserid;
+      uls[1].addEventListener("click", this.onUserPanelClicked);
 
       this.startEchoListeners();
     }
@@ -9317,7 +9334,7 @@ var ChatUsersController = function () {
   }, {
     key: "setOnline",
     value: function setOnline(id) {
-      var icon = this.usersContainer.querySelector("li[data-id=\"" + id + "\"] .online-status-icon");
+      var icon = this.usersContainer.querySelector("li[data-user-id=\"" + id + "\"] .online-status-icon");
 
       if (icon && !icon.classList.contains("green-text")) {
         icon.classList.add("green-text");
@@ -9326,7 +9343,7 @@ var ChatUsersController = function () {
   }, {
     key: "setOffline",
     value: function setOffline(id) {
-      var icon = this.usersContainer.querySelector("li[data-id=\"" + id + "\"] .online-status-icon");
+      var icon = this.usersContainer.querySelector("li[data-user-id=\"" + id + "\"] .online-status-icon");
 
       if (icon && icon.classList.contains("green-text")) {
         icon.classList.remove("green-text");
@@ -9343,12 +9360,35 @@ var ChatUsersController = function () {
       var li = this.getFirstLi(e);
       if (!li) return;
 
-      var userId = li.dataset.id;
-      axios.get("/chat/getMessagesWith/" + userId).then(function (resp) {
-        _this3.chatController.onMessagesReceived(resp.data, +userId);
+      var userId = li.dataset.userId;
+
+      axios.get("/chat/getMessagesWithUser/" + userId).then(function (resp) {
+        _this3.chatController.onMessagesReceived(resp.data, +userId, "App.User");
       }).catch(function (err) {
         console.error(err);
-        _this3.chatController.onMessagesReceived(null, -1);
+        console.error(Object.values(err));
+        _this3.chatController.onMessagesReceived(null);
+      });
+    }
+  }, {
+    key: "onGroupPanelClicked",
+    value: function onGroupPanelClicked(e) {
+      var _this4 = this;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var li = this.getFirstLi(e);
+      if (!li) return;
+
+      var groupId = li.dataset.groupId;
+
+      axios.get("/chat/getMessagesWithGroup/" + groupId).then(function (resp) {
+        _this4.chatController.onMessagesReceived(resp.data, +groupId, "App.Group");
+      }).catch(function (err) {
+        console.error(err);
+        console.error(Object.values(err));
+        _this4.chatController.onMessagesReceived(null);
       });
     }
   }, {
@@ -9363,19 +9403,22 @@ var ChatUsersController = function () {
   }, {
     key: "updateUnreadMessages",
     value: function updateUnreadMessages(_ref) {
-      var from = _ref.from,
+      var fromId = _ref.fromId,
+          fromType = _ref.fromType,
           toDelete = _ref.toDelete;
 
+      var fromKey = fromId + "_" + fromType;
       if (toDelete) {
-        if (!this.unreadMessages[from]) return;
-        this.unreadMessages[from] = null;
+        if (!this.unreadMessages[fromKey]) return;
+        this.unreadMessages[fromKey] = null;
       } else {
-        if (!this.unreadMessages[from]) this.unreadMessages[from] = 0;
-        this.unreadMessages[from] += 1;
+        if (!this.unreadMessages[fromKey]) this.unreadMessages[fromKey] = 0;
+        this.unreadMessages[fromKey] += 1;
       }
 
-      var n = this.unreadMessages[from];
-      var badge = this.usersContainer.querySelector("li[data-id=\"" + from + "\"] span.round-badge");
+      var n = this.unreadMessages[fromKey];
+      var dataAttr = this.getDataAttr(fromId, fromType);
+      var badge = this.usersContainer.querySelector("li[" + dataAttr + "] span.round-badge");
       var display = badge.style.display;
 
 
@@ -9386,18 +9429,25 @@ var ChatUsersController = function () {
   }, {
     key: "displayLastMsg",
     value: function displayLastMsg(msg) {
+      var dataAttr = this.getDataAttr(msg.to_type === "App.User" ? msg.from : msg.to_id, msg.to_type);
+
       // msg text
-      var span = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] span.last-message");
+      var span = this.usersContainer.querySelector("li[" + dataAttr + "] span.last-message");
 
       span.innerHTML = msg.body;
       if (span.style.display === "none") span.style.display = "block";
 
       // msg date
-      var div = this.usersContainer.querySelector("li[data-id=\"" + msg.from + "\"] div.last-message-date");
+      var div = this.usersContainer.querySelector("li[" + dataAttr + "] div.last-message-date");
       var date = formatDate(msg.created_at);
 
       div.innerHTML = date;
       if (div.style.display === "none") div.style.display = "block";
+    }
+  }, {
+    key: "getDataAttr",
+    value: function getDataAttr(id, type) {
+      return type === "App.User" ? "data-user-id=\"" + id + "\"" : "data-group-id=\"" + id + "\"";
     }
   }]);
 

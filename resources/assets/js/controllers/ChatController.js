@@ -15,6 +15,7 @@ class ChatController {
     this.messages = [];
     this.userId = -1;
     this.talkingToId = -1;
+    this.talkingToType = "";
     this.sendingMsg = false;
 
     this.onSendMessage = this.onSendMessage.bind(this);
@@ -37,11 +38,20 @@ class ChatController {
   startEchoListeners() {
     window.Echo.private(`chat.${this.userId}`).listen("NewMessage", data => {
       const msg = data.message;
-      if (msg.from === this.talkingToId) {
+
+      let fromId = msg.from;
+      let fromType = "App.User";
+      if (msg.to_type === "App.Group") {
+        fromId = msg.to_id;
+        fromType = msg.to_type;
+      }
+
+      if (fromId === this.talkingToId) {
         this.addMessageToChat(msg);
       } else {
         this.chatUsersController.updateUnreadMessages({
-          from: msg.from,
+          fromId,
+          fromType,
           toDelete: false
         });
       }
@@ -50,14 +60,16 @@ class ChatController {
     });
   }
 
-  onMessagesReceived(msgs, talkingToId) {
+  onMessagesReceived(msgs, talkingToId, talkingToType) {
     if (msgs === null) {
       // Error
       this.messages = [];
       this.talkingToId = -1;
+      this.talkingToType = "";
       this.chatContainer.style.display = "none";
     } else {
       this.talkingToId = talkingToId;
+      this.talkingToType = talkingToType;
       this.messages = msgs;
       this.showMessages();
     }
@@ -75,7 +87,8 @@ class ChatController {
       axios
         .post("/chat/sendMessage", {
           body: this.textarea.value,
-          to: this.talkingToId
+          to_id: this.talkingToId,
+          to_type: this.talkingToType
         })
         .then(resp => {
           this.addMessageToChat(resp.data);
@@ -92,15 +105,16 @@ class ChatController {
   }
 
   getMessageLi(msg) {
-    const friend = this.talkingToId;
+    const me = this.userId;
     return `<li class="chat__msg ${
-      msg.from === friend ? "chat__msg--friend" : "chat__msg--me"
+      msg.from !== me ? "chat__msg--friend" : "chat__msg--me"
     }">${msg.body}</li>`;
   }
 
   showMessages() {
     this.chatUsersController.updateUnreadMessages({
-      from: this.talkingToId,
+      fromId: this.talkingToId,
+      fromType: this.talkingToType,
       toDelete: true
     });
     const lis = this.messages.map(this.getMessageLi);

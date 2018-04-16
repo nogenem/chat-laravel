@@ -13,14 +13,17 @@ class ChatUsersController {
 
     this.unreadMessages = {};
 
+    this.onGroupPanelClicked = this.onGroupPanelClicked.bind(this);
     this.onUserPanelClicked = this.onUserPanelClicked.bind(this);
   }
 
   init() {
-    const ul = this.usersContainer.getElementsByTagName("ul")[0];
+    const uls = this.usersContainer.getElementsByTagName("ul");
 
-    this.chatController.userId = +ul.dataset.myUserid;
-    ul.addEventListener("click", this.onUserPanelClicked);
+    uls[0].addEventListener("click", this.onGroupPanelClicked);
+
+    this.chatController.userId = +uls[1].dataset.myUserid;
+    uls[1].addEventListener("click", this.onUserPanelClicked);
 
     this.startEchoListeners();
   }
@@ -46,7 +49,7 @@ class ChatUsersController {
 
   setOnline(id) {
     const icon = this.usersContainer.querySelector(
-      `li[data-id="${id}"] .online-status-icon`
+      `li[data-user-id="${id}"] .online-status-icon`
     );
 
     if (icon && !icon.classList.contains("green-text")) {
@@ -56,7 +59,7 @@ class ChatUsersController {
 
   setOffline(id) {
     const icon = this.usersContainer.querySelector(
-      `li[data-id="${id}"] .online-status-icon`
+      `li[data-user-id="${id}"] .online-status-icon`
     );
 
     if (icon && icon.classList.contains("green-text")) {
@@ -71,15 +74,40 @@ class ChatUsersController {
     const li = this.getFirstLi(e);
     if (!li) return;
 
-    const userId = li.dataset.id;
+    const { userId } = li.dataset;
     axios
-      .get(`/chat/getMessagesWith/${userId}`)
+      .get(`/chat/getMessagesWithUser/${userId}`)
       .then(resp => {
-        this.chatController.onMessagesReceived(resp.data, +userId);
+        this.chatController.onMessagesReceived(resp.data, +userId, "App.User");
       })
       .catch(err => {
         console.error(err);
-        this.chatController.onMessagesReceived(null, -1);
+        console.error(Object.values(err));
+        this.chatController.onMessagesReceived(null);
+      });
+  }
+
+  onGroupPanelClicked(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const li = this.getFirstLi(e);
+    if (!li) return;
+
+    const { groupId } = li.dataset;
+    axios
+      .get(`/chat/getMessagesWithGroup/${groupId}`)
+      .then(resp => {
+        this.chatController.onMessagesReceived(
+          resp.data,
+          +groupId,
+          "App.Group"
+        );
+      })
+      .catch(err => {
+        console.error(err);
+        console.error(Object.values(err));
+        this.chatController.onMessagesReceived(null);
       });
   }
 
@@ -91,18 +119,20 @@ class ChatUsersController {
     return node;
   }
 
-  updateUnreadMessages({ from, toDelete }) {
+  updateUnreadMessages({ fromId, fromType, toDelete }) {
+    const fromKey = `${fromId}_${fromType}`;
     if (toDelete) {
-      if (!this.unreadMessages[from]) return;
-      this.unreadMessages[from] = null;
+      if (!this.unreadMessages[fromKey]) return;
+      this.unreadMessages[fromKey] = null;
     } else {
-      if (!this.unreadMessages[from]) this.unreadMessages[from] = 0;
-      this.unreadMessages[from] += 1;
+      if (!this.unreadMessages[fromKey]) this.unreadMessages[fromKey] = 0;
+      this.unreadMessages[fromKey] += 1;
     }
 
-    const n = this.unreadMessages[from];
+    const n = this.unreadMessages[fromKey];
+    const dataAttr = this.getDataAttr(fromId, fromType);
     const badge = this.usersContainer.querySelector(
-      `li[data-id="${from}"] span.round-badge`
+      `li[${dataAttr}] span.round-badge`
     );
     const { display } = badge.style;
 
@@ -112,9 +142,14 @@ class ChatUsersController {
   }
 
   displayLastMsg(msg) {
+    const dataAttr = this.getDataAttr(
+      msg.to_type === "App.User" ? msg.from : msg.to_id,
+      msg.to_type
+    );
+
     // msg text
     const span = this.usersContainer.querySelector(
-      `li[data-id="${msg.from}"] span.last-message`
+      `li[${dataAttr}] span.last-message`
     );
 
     span.innerHTML = msg.body;
@@ -122,12 +157,18 @@ class ChatUsersController {
 
     // msg date
     const div = this.usersContainer.querySelector(
-      `li[data-id="${msg.from}"] div.last-message-date`
+      `li[${dataAttr}] div.last-message-date`
     );
     const date = formatDate(msg.created_at);
 
     div.innerHTML = date;
     if (div.style.display === "none") div.style.display = "block";
+  }
+
+  getDataAttr(id, type) {
+    return type === "App.User"
+      ? `data-user-id="${id}"`
+      : `data-group-id="${id}"`;
   }
 }
 
