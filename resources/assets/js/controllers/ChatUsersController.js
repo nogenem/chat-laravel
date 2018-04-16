@@ -21,6 +21,47 @@ class ChatUsersController {
 
     this.chatController.userId = +ul.dataset.myUserid;
     ul.addEventListener("click", this.onUserPanelClicked);
+
+    this.startEchoListeners();
+  }
+
+  startEchoListeners() {
+    Echo.join("Online")
+      .here(users => {
+        this.updateOnlineUsers(users);
+      })
+      .joining(user => {
+        this.setOnline(user.id);
+      })
+      .leaving(user => {
+        this.setOffline(user.id);
+      });
+  }
+
+  updateOnlineUsers(users) {
+    users.forEach(user => {
+      this.setOnline(user.id);
+    });
+  }
+
+  setOnline(id) {
+    const icon = this.usersContainer.querySelector(
+      `li[data-id="${id}"] .online-status-icon`
+    );
+
+    if (icon && !icon.classList.contains("green-text")) {
+      icon.classList.add("green-text");
+    }
+  }
+
+  setOffline(id) {
+    const icon = this.usersContainer.querySelector(
+      `li[data-id="${id}"] .online-status-icon`
+    );
+
+    if (icon && icon.classList.contains("green-text")) {
+      icon.classList.remove("green-text");
+    }
   }
 
   onUserPanelClicked(e) {

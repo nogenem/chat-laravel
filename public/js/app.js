@@ -9287,11 +9287,53 @@ var ChatUsersController = function () {
 
       this.chatController.userId = +ul.dataset.myUserid;
       ul.addEventListener("click", this.onUserPanelClicked);
+
+      this.startEchoListeners();
+    }
+  }, {
+    key: "startEchoListeners",
+    value: function startEchoListeners() {
+      var _this = this;
+
+      Echo.join("Online").here(function (users) {
+        _this.updateOnlineUsers(users);
+      }).joining(function (user) {
+        _this.setOnline(user.id);
+      }).leaving(function (user) {
+        _this.setOffline(user.id);
+      });
+    }
+  }, {
+    key: "updateOnlineUsers",
+    value: function updateOnlineUsers(users) {
+      var _this2 = this;
+
+      users.forEach(function (user) {
+        _this2.setOnline(user.id);
+      });
+    }
+  }, {
+    key: "setOnline",
+    value: function setOnline(id) {
+      var icon = this.usersContainer.querySelector("li[data-id=\"" + id + "\"] .online-status-icon");
+
+      if (icon && !icon.classList.contains("green-text")) {
+        icon.classList.add("green-text");
+      }
+    }
+  }, {
+    key: "setOffline",
+    value: function setOffline(id) {
+      var icon = this.usersContainer.querySelector("li[data-id=\"" + id + "\"] .online-status-icon");
+
+      if (icon && icon.classList.contains("green-text")) {
+        icon.classList.remove("green-text");
+      }
     }
   }, {
     key: "onUserPanelClicked",
     value: function onUserPanelClicked(e) {
-      var _this = this;
+      var _this3 = this;
 
       e.preventDefault();
       e.stopPropagation();
@@ -9301,10 +9343,10 @@ var ChatUsersController = function () {
 
       var userId = li.dataset.id;
       axios.get("/chat/getMessagesWith/" + userId).then(function (resp) {
-        _this.chatController.onMessagesReceived(resp.data, +userId);
+        _this3.chatController.onMessagesReceived(resp.data, +userId);
       }).catch(function (err) {
         console.error(err);
-        _this.chatController.onMessagesReceived(null, -1);
+        _this3.chatController.onMessagesReceived(null, -1);
       });
     }
   }, {

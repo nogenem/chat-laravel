@@ -65,6 +65,13 @@
 .chat-user {
   .img-container {
     padding: 0.1em;
+    position: relative;
+
+    .online-status-icon {
+      position: absolute;
+      bottom: 0;
+      right: 2px;
+    }
   }
 
   .container-flex {

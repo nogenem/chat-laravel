@@ -10,6 +10,7 @@
                     <div class="row valign-wrapper mb-5 mt-5">
                     <div class="col m12 l2 valign-wrapper img-container tooltipped" data-position="right" data-tooltip="{{ $user->name }}">
                             <img src="http://via.placeholder.com/50x50" alt="" class="circle responsive-img">
+                            <i class="material-icons tiny online-status-icon red-text">fiber_manual_record</i>
                         </div>
                         <div class="col s10 hide-on-med-and-down">
                             <div class="container-flex">
