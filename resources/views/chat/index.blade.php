@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+<audio id="chat-audio">
+    <source src="{{ asset('sounds/chat.mp3') }}" type="audio/mpeg">
+    <source src="{{ asset('sounds/chat.ogg') }}" type="audio/ogg" />
+</audio>
 <div class="row mb-0">
     <div id="chat-users-container" class="col l3 m1 s2">
         <h5 class="hide-on-med-and-down">Usuarios</h5>

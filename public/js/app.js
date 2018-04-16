@@ -4684,6 +4684,7 @@ var ChatController = function () {
     this.chat = this.chatContainer.querySelector(".chat");
     this.chatRow = document.getElementById("chat-row");
     this.textarea = document.getElementById("chat-message");
+    this.chatAudio = document.getElementById("chat-audio");
 
     this.messages = [];
     this.userId = -1;
@@ -4724,6 +4725,7 @@ var ChatController = function () {
           });
         }
         _this.chatUsersController.displayLastMsg(msg);
+        _this.chatAudio.play();
       });
     }
   }, {
