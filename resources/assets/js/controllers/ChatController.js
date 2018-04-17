@@ -1,6 +1,7 @@
 import Echo from "laravel-echo";
 import io from "socket.io-client";
 import ChatUsersController from "./ChatUsersController";
+import { USER_TYPE, GROUP_TYPE } from "../constants";
 
 class ChatController {
   constructor() {
@@ -40,8 +41,8 @@ class ChatController {
       const msg = data.message;
 
       let fromId = msg.from;
-      let fromType = "App.User";
-      if (msg.to_type === "App.Group") {
+      let fromType = USER_TYPE;
+      if (msg.to_type === GROUP_TYPE) {
         fromId = msg.to_id;
         fromType = msg.to_type;
       }

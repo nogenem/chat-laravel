@@ -1,3 +1,5 @@
+import { USER_TYPE, GROUP_TYPE } from "../constants";
+
 const formatDate = dateStr => {
   const date = new Date(dateStr);
   const d = `0${date.getDate()}`.slice(-2);
@@ -78,7 +80,7 @@ class ChatUsersController {
     axios
       .get(`/chat/getMessagesWithUser/${userId}`)
       .then(resp => {
-        this.chatController.onMessagesReceived(resp.data, +userId, "App.User");
+        this.chatController.onMessagesReceived(resp.data, +userId, USER_TYPE);
       })
       .catch(err => {
         console.error(err);
@@ -98,11 +100,7 @@ class ChatUsersController {
     axios
       .get(`/chat/getMessagesWithGroup/${groupId}`)
       .then(resp => {
-        this.chatController.onMessagesReceived(
-          resp.data,
-          +groupId,
-          "App.Group"
-        );
+        this.chatController.onMessagesReceived(resp.data, +groupId, GROUP_TYPE);
       })
       .catch(err => {
         console.error(err);
@@ -143,7 +141,7 @@ class ChatUsersController {
 
   displayLastMsg(msg) {
     const dataAttr = this.getDataAttr(
-      msg.to_type === "App.User" ? msg.from : msg.to_id,
+      msg.to_type === USER_TYPE ? msg.from : msg.to_id,
       msg.to_type
     );
 
@@ -166,7 +164,7 @@ class ChatUsersController {
   }
 
   getDataAttr(id, type) {
-    return type === "App.User"
+    return type === USER_TYPE
       ? `data-user-id="${id}"`
       : `data-group-id="${id}"`;
   }
