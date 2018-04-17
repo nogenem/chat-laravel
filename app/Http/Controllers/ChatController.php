@@ -50,14 +50,14 @@ class ChatController extends Controller
             $query->where('from', $my_id)
                 ->orWhere(function ($query) use ($my_id) {
                     $query->where('to_id', $my_id)
-                        ->where('to_type', 'App.User');
+                        ->where('to_type', Message::$USER_TYPE);
                 });
         })
             ->where(function ($query) use ($user_id) {
                 $query->where('from', $user_id)
                     ->orWhere(function ($query) use ($user_id) {
                         $query->where('to_id', $user_id)
-                            ->where('to_type', 'App.User');
+                            ->where('to_type', Message::$USER_TYPE);
                     });
             })
             ->get();
@@ -77,7 +77,7 @@ class ChatController extends Controller
         }
 
         $messages = Message::where('to_id', $group_id)
-            ->where('to_type', 'App.Group')
+            ->where('to_type', Message::$GROUP_TYPE)
             ->get();
 
         return $messages->toJson();
@@ -85,16 +85,19 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request)
     {
+        $user_type = Message::$USER_TYPE;
+        $group_type = Message::$GROUP_TYPE;
+
         $request->validate([
             'to_id' => 'required|numeric',
-            'to_type' => 'required|in:App.User,App.Group',
+            'to_type' => "required|in:$user_type,$group_type",
             'body' => 'required'
         ]);
 
         $to_id = (int)$request->input('to_id');
         $to_type = $request->input('to_type');
 
-        if ($to_type === 'App.Group') {
+        if ($to_type === $group_type) {
             $user = auth()->user();
             if (!$user->belongsToGroup($to_id)) {
                 // TODO: Tratar isso melhor!
@@ -113,7 +116,7 @@ class ChatController extends Controller
 
         if ($msg) {
             $groupUsersIds = null;
-            if ($to_type === 'App.Group') {
+            if ($to_type === $group_type) {
                 $group = Group::with('users')->find($to_id);
                 $groupUsersIds = $group->users->map(function ($user) {
                     return $user->id;

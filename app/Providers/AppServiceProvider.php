@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
+use App\Message;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -15,8 +17,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Relation::morphMap([
-            'users' => 'App.User',
-            'groups' => 'App.Group',
+            'users' => Message::$USER_TYPE,
+            'groups' => Message::$GROUP_TYPE,
         ]);
     }
 
