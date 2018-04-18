@@ -76,11 +76,14 @@ class ChatUsersController {
     const li = this.getFirstLi(e);
     if (!li) return;
 
+    this.toggleActive();
+
     const { userId } = li.dataset;
     axios
       .get(`/chat/getMessagesWithUser/${userId}`)
       .then(resp => {
         this.chatController.onMessagesReceived(resp.data, +userId, USER_TYPE);
+        this.toggleActive();
       })
       .catch(err => {
         console.error(err);
@@ -96,11 +99,14 @@ class ChatUsersController {
     const li = this.getFirstLi(e);
     if (!li) return;
 
+    this.toggleActive();
+
     const { groupId } = li.dataset;
     axios
       .get(`/chat/getMessagesWithGroup/${groupId}`)
       .then(resp => {
         this.chatController.onMessagesReceived(resp.data, +groupId, GROUP_TYPE);
+        this.toggleActive();
       })
       .catch(err => {
         console.error(err);
@@ -161,6 +167,18 @@ class ChatUsersController {
 
     div.innerHTML = date;
     if (div.style.display === "none") div.style.display = "block";
+  }
+
+  toggleActive() {
+    const id = this.chatController.talkingToId;
+    const type = this.chatController.talkingToType;
+
+    if (id !== -1) {
+      const dataAttr = this.getDataAttr(id, type);
+      const li = this.usersContainer.querySelector(`li[${dataAttr}]`);
+
+      li.classList.toggle("active");
+    }
   }
 
   getDataAttr(id, type) {

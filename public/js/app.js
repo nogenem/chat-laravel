@@ -9375,10 +9375,13 @@ var ChatUsersController = function () {
       var li = this.getFirstLi(e);
       if (!li) return;
 
+      this.toggleActive();
+
       var userId = li.dataset.userId;
 
       axios.get("/chat/getMessagesWithUser/" + userId).then(function (resp) {
         _this3.chatController.onMessagesReceived(resp.data, +userId, __WEBPACK_IMPORTED_MODULE_0__constants__["b" /* USER_TYPE */]);
+        _this3.toggleActive();
       }).catch(function (err) {
         console.error(err);
         console.error(Object.values(err));
@@ -9396,10 +9399,13 @@ var ChatUsersController = function () {
       var li = this.getFirstLi(e);
       if (!li) return;
 
+      this.toggleActive();
+
       var groupId = li.dataset.groupId;
 
       axios.get("/chat/getMessagesWithGroup/" + groupId).then(function (resp) {
         _this4.chatController.onMessagesReceived(resp.data, +groupId, __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* GROUP_TYPE */]);
+        _this4.toggleActive();
       }).catch(function (err) {
         console.error(err);
         console.error(Object.values(err));
@@ -9458,6 +9464,19 @@ var ChatUsersController = function () {
 
       div.innerHTML = date;
       if (div.style.display === "none") div.style.display = "block";
+    }
+  }, {
+    key: "toggleActive",
+    value: function toggleActive() {
+      var id = this.chatController.talkingToId;
+      var type = this.chatController.talkingToType;
+
+      if (id !== -1) {
+        var dataAttr = this.getDataAttr(id, type);
+        var li = this.usersContainer.querySelector("li[" + dataAttr + "]");
+
+        li.classList.toggle("active");
+      }
     }
   }, {
     key: "getDataAttr",
