@@ -134,14 +134,19 @@ class ChatUsersController {
 
     const n = this.unreadMessages[fromKey];
     const dataAttr = this.getDataAttr(fromId, fromType);
-    const badge = this.usersContainer.querySelector(
-      `li[${dataAttr}] span.round-badge`
+    const badges = this.usersContainer.querySelectorAll(
+      `li[${dataAttr}] .round-badge`
     );
-    const { display } = badge.style;
 
-    badge.textContent = !n ? "" : n;
-    if (!n && display === "inline-block") badge.style.display = "none";
-    if (n && display === "none") badge.style.display = "inline-block";
+    badges.forEach(badge => {
+      const { visibility } = badge.style;
+
+      /* eslint-disable no-param-reassign */
+      badge.textContent = !n ? "" : n;
+      if (!n && visibility === "visible") badge.style.visibility = "hidden";
+      if (n && visibility === "hidden") badge.style.visibility = "visible";
+      /* eslint-enable no-param-reassign */
+    });
   }
 
   displayLastMsg(msg) {

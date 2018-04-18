@@ -12,7 +12,9 @@
             <ul>
                 @foreach ($groups as $group)
                     <li class="col s12 chat-user" data-group-id="{{ $group->id }}">
-                        <div class="col s12 l2 chat-img group-img"></div>
+                        <div class="col s12 l2 chat-img group-img">
+                            <span class="round-badge blue white-text hide-on-large-only" style="visibility: hidden;"></span>
+                        </div>
                         <div class="col l10 hide-on-med-and-down">
                             <div class="container-flex">
                                 <span class="truncate font-bold">{{ ucwords($group->name) }}</span>
@@ -25,7 +27,7 @@
                                 <span class="truncate text-muted last-message">
                                     {!! isset($groupMsgs[$group->id]) ? $groupMsgs[$group->id]->body : "" !!}
                                 </span>
-                                <span class="round-badge blue white-text" style="display: none;"></span>
+                                <span class="round-badge blue white-text" style="visibility: hidden;"></span>
                             </div>
                         </div>
                     </li>
@@ -41,6 +43,7 @@
                     <li class="col s12 chat-user" data-user-id="{{ $user->id }}">
                         <div class="col m12 l2 chat-img user-img">
                             <span class="red white-text status-badge"></span>
+                            <span class="round-badge blue white-text hide-on-large-only" style="visibility: hidden;"></span>
                         </div>
                         <div class="col l10 hide-on-med-and-down">
                             <div class="container-flex">
@@ -54,7 +57,7 @@
                                 <span class="truncate text-muted last-message">
                                     {!! isset($userMsgs[$user->id]) ? $userMsgs[$user->id]->body : "" !!}
                                 </span>
-                                <span class="round-badge blue white-text" style="display: none;"></span>
+                                <span class="round-badge blue white-text" style="visibility: hidden;"></span>
                             </div>
                         </div>
                     </li>

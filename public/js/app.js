@@ -9439,13 +9439,18 @@ var ChatUsersController = function () {
 
       var n = this.unreadMessages[fromKey];
       var dataAttr = this.getDataAttr(fromId, fromType);
-      var badge = this.usersContainer.querySelector("li[" + dataAttr + "] span.round-badge");
-      var display = badge.style.display;
+      var badges = this.usersContainer.querySelectorAll("li[" + dataAttr + "] .round-badge");
 
+      badges.forEach(function (badge) {
+        var visibility = badge.style.visibility;
 
-      badge.textContent = !n ? "" : n;
-      if (!n && display === "inline-block") badge.style.display = "none";
-      if (n && display === "none") badge.style.display = "inline-block";
+        /* eslint-disable no-param-reassign */
+
+        badge.textContent = !n ? "" : n;
+        if (!n && visibility === "visible") badge.style.visibility = "hidden";
+        if (n && visibility === "hidden") badge.style.visibility = "visible";
+        /* eslint-enable no-param-reassign */
+      });
     }
   }, {
     key: "displayLastMsg",
