@@ -1,60 +1,64 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+# Simple Laravel Chat
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+## Inicializando o projeto
 
-## About Laravel
+Para inicializar este projeto, deve-se seguir os seguintes passos:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+```shell
+git clone https://github.com/nogenem/chat-laravel.git
+cd chat-laravel/laradock
+cp env-example .env
+sudo docker-compose up -d workspace nginx mysql redis phpmyadmin laravel-echo-server
+sudo docker-compose exec workspace bash
+composer install
+cp .env.example .env
+php artisan key:generate
+yarn
+exit
+sudo docker-compose exec mysql bash
+mysql -u root -p
+root
+CREATE DATABASE chat_laravel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+exit
+exit
+sudo docker-compose exec workspace bash
+php artisan migrate
+php artisan db:seed    # opcional, irá gerar 10 usuários e 50 mensagens aleatórias entre eles
+exit
+cd ..
+sudo chown -R $USER .
+sudo chmod -R 777 storage bootstrap/cache
+```
+E então pode-se abrir o link: [localhost](http://localhost)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Comandos/Urls importantes
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications.
+- Inicialização dos containers:
+```shell
+sudo docker-compose up -d workspace nginx mysql redis phpmyadmin laravel-echo-server
+```
 
-## Learning Laravel
+- 'Desligamento' dos containers:
+```shell
+sudo docker-compose down
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of any modern web application framework, making it a breeze to get started learning the framework.
+- 'Desligamento' dos containers:
+```shell
+sudo docker-compose down
+```
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 1100 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+- Acessar o 'bash' do container 'workspace':
+```shell
+sudo docker-compose exec workspace bash
+```
 
-## Laravel Sponsors
+- Modificar o 'owner' dos arquivos do projeto após a geração de novos arquivos dentro do container 'workspace':
+	- Isso é necessário pois os arquivos são gerados com sudo
+```shell
+sudo chown -R $USER .
+```
 
-We would like to extend our thanks to the following sponsors for helping fund on-going Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell):
+- Acessar phpmyadmin:
+    - [localhost:8080](http://localhost:8080)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
