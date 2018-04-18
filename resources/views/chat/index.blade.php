@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <div id="chat-container" class="col l9 m11 s11">
+    <div id="chat-container" class="col l9 s11">
         <div id="chat-row" class="row mb-0" style="height: 80vh; overflow-y: auto;">
             <div class="col s12">
                 <ul class="chat"></ul>

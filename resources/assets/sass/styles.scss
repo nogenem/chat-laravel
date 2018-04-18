@@ -91,7 +91,9 @@
 
 /* ========================= Chat Container ============================ */
 #chat-container {
-  height: 90vh;
+  height: calc(90vh - 3px);
+  margin-top: 3px;
+  max-width: calc(100% - 75px) !important;
   display: none;
 }
 
@@ -123,10 +125,26 @@
   align-self: flex-end;
 }
 
+#chat-message {
+  max-height: 19px;
+}
+
 /* ========================= Queries ============================ */
 @media only screen and (max-width: 992px) {
   .chat-user {
     display: flex;
     justify-content: center;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  #chat-users-container {
+    height: calc(91vh);
+    margin-top: 2px;
+  }
+
+  #chat-container {
+    height: calc(91vh);
+    margin-top: 2px;
   }
 }
