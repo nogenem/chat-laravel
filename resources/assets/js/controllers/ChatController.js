@@ -107,9 +107,10 @@ class ChatController {
 
   getMessageLi(msg) {
     const me = this.userId;
+    const txt = msg.body.replace(new RegExp("\\r?\\n", "g"), "<br/>");
     return `<li class="chat__msg ${
       msg.from !== me ? "chat__msg--friend" : "chat__msg--me"
-    }">${msg.body}</li>`;
+    }">${txt}</li>`;
   }
 
   showMessages() {
