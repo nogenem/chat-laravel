@@ -4764,6 +4764,7 @@ var ChatController = function () {
         this.talkingToType = talkingToType;
         this.messages = msgs;
         this.showMessages();
+        this.textarea.focus();
       }
     }
   }, {

@@ -73,6 +73,7 @@ class ChatController {
       this.talkingToType = talkingToType;
       this.messages = msgs;
       this.showMessages();
+      this.textarea.focus();
     }
   }
 
