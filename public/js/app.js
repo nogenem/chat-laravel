@@ -9315,11 +9315,10 @@ var ChatUsersController = function () {
   _createClass(ChatUsersController, [{
     key: "init",
     value: function init() {
+      this.chatController.userId = +this.usersContainer.dataset.myUserid;
+
       var uls = this.usersContainer.getElementsByTagName("ul");
-
       uls[0].addEventListener("click", this.onGroupPanelClicked);
-
-      this.chatController.userId = +uls[1].dataset.myUserid;
       uls[1].addEventListener("click", this.onUserPanelClicked);
 
       this.startEchoListeners();
@@ -9349,19 +9348,19 @@ var ChatUsersController = function () {
   }, {
     key: "setOnline",
     value: function setOnline(id) {
-      var icon = this.usersContainer.querySelector("li[data-user-id=\"" + id + "\"] .online-status-icon");
+      var icon = this.usersContainer.querySelector("li[data-user-id=\"" + id + "\"] .status-badge");
 
-      if (icon && !icon.classList.contains("green-text")) {
-        icon.classList.add("green-text");
+      if (icon && !icon.classList.contains("green")) {
+        icon.classList.add("green");
       }
     }
   }, {
     key: "setOffline",
     value: function setOffline(id) {
-      var icon = this.usersContainer.querySelector("li[data-user-id=\"" + id + "\"] .online-status-icon");
+      var icon = this.usersContainer.querySelector("li[data-user-id=\"" + id + "\"] .status-badge");
 
-      if (icon && icon.classList.contains("green-text")) {
-        icon.classList.remove("green-text");
+      if (icon && icon.classList.contains("green")) {
+        icon.classList.remove("green");
       }
     }
   }, {
@@ -9453,13 +9452,13 @@ var ChatUsersController = function () {
       var dataAttr = this.getDataAttr(msg.to_type === __WEBPACK_IMPORTED_MODULE_0__constants__["b" /* USER_TYPE */] ? msg.from : msg.to_id, msg.to_type);
 
       // msg text
-      var span = this.usersContainer.querySelector("li[" + dataAttr + "] span.last-message");
+      var span = this.usersContainer.querySelector("li[" + dataAttr + "] .last-message");
 
       span.innerHTML = msg.body;
       if (span.style.display === "none") span.style.display = "block";
 
       // msg date
-      var div = this.usersContainer.querySelector("li[" + dataAttr + "] div.last-message-date");
+      var div = this.usersContainer.querySelector("li[" + dataAttr + "] .last-message-date");
       var date = formatDate(msg.created_at);
 
       div.innerHTML = date;

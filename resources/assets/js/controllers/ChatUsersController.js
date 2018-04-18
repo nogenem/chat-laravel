@@ -20,11 +20,10 @@ class ChatUsersController {
   }
 
   init() {
+    this.chatController.userId = +this.usersContainer.dataset.myUserid;
+
     const uls = this.usersContainer.getElementsByTagName("ul");
-
     uls[0].addEventListener("click", this.onGroupPanelClicked);
-
-    this.chatController.userId = +uls[1].dataset.myUserid;
     uls[1].addEventListener("click", this.onUserPanelClicked);
 
     this.startEchoListeners();
@@ -51,21 +50,21 @@ class ChatUsersController {
 
   setOnline(id) {
     const icon = this.usersContainer.querySelector(
-      `li[data-user-id="${id}"] .online-status-icon`
+      `li[data-user-id="${id}"] .status-badge`
     );
 
-    if (icon && !icon.classList.contains("green-text")) {
-      icon.classList.add("green-text");
+    if (icon && !icon.classList.contains("green")) {
+      icon.classList.add("green");
     }
   }
 
   setOffline(id) {
     const icon = this.usersContainer.querySelector(
-      `li[data-user-id="${id}"] .online-status-icon`
+      `li[data-user-id="${id}"] .status-badge`
     );
 
-    if (icon && icon.classList.contains("green-text")) {
-      icon.classList.remove("green-text");
+    if (icon && icon.classList.contains("green")) {
+      icon.classList.remove("green");
     }
   }
 
@@ -153,7 +152,7 @@ class ChatUsersController {
 
     // msg text
     const span = this.usersContainer.querySelector(
-      `li[${dataAttr}] span.last-message`
+      `li[${dataAttr}] .last-message`
     );
 
     span.innerHTML = msg.body;
@@ -161,7 +160,7 @@ class ChatUsersController {
 
     // msg date
     const div = this.usersContainer.querySelector(
-      `li[${dataAttr}] div.last-message-date`
+      `li[${dataAttr}] .last-message-date`
     );
     const date = formatDate(msg.created_at);
 

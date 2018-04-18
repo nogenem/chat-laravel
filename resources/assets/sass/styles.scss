@@ -1,26 +1,98 @@
+/* ========================= Users Container ============================ */
 #chat-users-container {
   height: calc(90vh - 3px);
   margin-top: 3px;
-  min-width: 40px;
+  min-width: 74px;
   background-color: #f5f5f5;
   overflow-y: auto;
-}
+  overflow-x: hidden;
 
-#chat-container {
-  height: 90vh;
-  display: none;
+  .chat-img {
+    position: relative;
+    min-width: 50px;
+    max-width: 60px;
+    height: 50px;
+    border-radius: 100%;
+    border: 2px solid #333;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .group-img {
+    background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQnPjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMjQgMjQiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PGc+PHBhdGggZD0iTTksOWMwLTEuNywxLjMtMywzLTNzMywxLjMsMywzYzAsMS43LTEuMywzLTMsM1M5LDEwLjcsOSw5eiBNMTIsMTRjLTQuNiwwLTYsMy4zLTYsMy4zVjE5aDEydi0xLjdDMTgsMTcuMywxNi42LDE0LDEyLDE0eiAgICIvPjwvZz48Zz48Zz48Y2lyY2xlIGN4PSIxOC41IiBjeT0iOC41IiByPSIyLjUiLz48L2c+PGc+PHBhdGggZD0iTTE4LjUsMTNjLTEuMiwwLTIuMSwwLjMtMi44LDAuOGMyLjMsMS4xLDMuMiwzLDMuMiwzLjJsMCwwLjFIMjN2LTEuM0MyMywxNS43LDIxLjksMTMsMTguNSwxM3oiLz48L2c+PC9nPjxnPjxnPjxjaXJjbGUgY3g9IjE4LjUiIGN5PSI4LjUiIHI9IjIuNSIvPjwvZz48Zz48cGF0aCBkPSJNMTguNSwxM2MtMS4yLDAtMi4xLDAuMy0yLjgsMC44YzIuMywxLjEsMy4yLDMsMy4yLDMuMmwwLDAuMUgyM3YtMS4zQzIzLDE1LjcsMjEuOSwxMywxOC41LDEzeiIvPjwvZz48L2c+PGc+PGc+PGNpcmNsZSBjeD0iNS41IiBjeT0iOC41IiByPSIyLjUiLz48L2c+PGc+PHBhdGggZD0iTTUuNSwxM2MxLjIsMCwyLjEsMC4zLDIuOCwwLjhjLTIuMywxLjEtMy4yLDMtMy4yLDMuMmwwLDAuMUgxdi0xLjNDMSwxNS43LDIuMSwxMyw1LjUsMTN6Ii8+PC9nPjwvZz48L3N2Zz4=");
+  }
+
+  .user-img {
+    background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIyNXB4IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyNSAyNSIgd2lkdGg9IjI1cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c2tldGNoPSJodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2gvbnMiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48dGl0bGUvPjxkZXNjLz48ZGVmcy8+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBpZD0iVGFiQmFyLUljb25zIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSI+PGcgZmlsbD0iIzAwMDAwMCIgaWQ9IkN1c3RvbWVycy1GaWxsZWQiPjxwYXRoIGQ9Ik0xMi41LDEyIEMxNS41Mzc1NjYxLDEyIDE4LDkuNTM3NTY2MTIgMTgsNi41IEMxOCwzLjQ2MjQzMzg4IDE1LjUzNzU2NjEsMSAxMi41LDEgQzkuNDYyNDMzODgsMSA3LDMuNDYyNDMzODggNyw2LjUgQzcsOS41Mzc1NjYxMiA5LjQ2MjQzMzg4LDEyIDEyLjUsMTIgTDEyLjUsMTIgWiBNMjUsMjQgTDI1LDI0IEwyNSwyNCBMMCwyNCBDMC43NDYzNTE4ODYsMTcuODAzNjYgNi4wNTgxNzIyNywxMyAxMi41LDEzIEMxOC45NDE4Mjc3LDEzIDI0LjI1MzY0ODEsMTcuODAzNjYgMjUsMjQgTDI1LDI0IFoiIGlkPSJVc2VyIi8+PC9nPjwvZz48L3N2Zz4=");
+  }
+
+  .status-badge {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+
+    font-size: 11px;
+    font-weight: bold;
+    padding: 1px 4px;
+
+    display: inline-block;
+    min-width: 13px;
+    min-height: 13px;
+    text-align: center;
+
+    border-radius: 50%;
+    border: 1px solid #333;
+  }
+
+  .round-badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 85%;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 50%;
+  }
 }
 
 .chat-user {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  position: relative;
+
+  &.active {
+    background-color: #e9e9e9;
+  }
+
+  &:not(.active):hover {
+    background-color: #f0f0f0;
+  }
+
+  .container-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .text-muted {
+    font-size: 85%;
+  }
+
+  .last-message-date {
+    white-space: nowrap;
+  }
 }
 
-.chat-user.active {
-  background-color: #e9e9e9;
-}
-
-.chat-user:not(.active):hover {
-  background-color: #f0f0f0;
+/* ========================= Chat Container ============================ */
+#chat-container {
+  height: 90vh;
+  display: none;
 }
 
 .chat {
@@ -51,66 +123,10 @@
   align-self: flex-end;
 }
 
-#chat-message {
-  max-height: 19px;
-}
-
-.round-badge {
-  display: inline-block;
-  padding: 0.25em 0.6em;
-  font-size: 85%;
-  font-weight: bold;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  border-radius: 50%;
-}
-
-.chat-user {
-  .img-container {
-    justify-content: center;
-    padding: 0.1em;
-
-    span {
-      position: relative;
-    }
-
-    .online-status-icon {
-      position: absolute;
-      bottom: 2px;
-      right: 1px;
-    }
-  }
-
-  .container-flex {
-    display: flex;
-    justify-content: space-between;
-
-    .text-muted {
-      font-size: 85%;
-    }
-
-    .text-small {
-      font-size: 70%;
-      line-height: 2.1;
-    }
-  }
-}
-
+/* ========================= Queries ============================ */
 @media only screen and (max-width: 992px) {
-  #chat-users-container::-webkit-scrollbar {
-    display: none;
-  }
-
-  .chat-user > div {
+  .chat-user {
     display: flex;
     justify-content: center;
-  }
-}
-
-@media only screen and (min-width: 601px) and (max-width: 700px) {
-  #chat-users-container {
-    padding: 5px !important;
   }
 }
