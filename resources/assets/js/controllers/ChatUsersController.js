@@ -81,6 +81,7 @@ class ChatUsersController {
     axios
       .get(`/chat/getMessagesWithUser/${userId}`)
       .then(resp => {
+        console.log(resp.data);
         this.chatController.onMessagesReceived(resp.data, +userId, USER_TYPE);
         this.toggleActive();
       })
@@ -174,8 +175,7 @@ class ChatUsersController {
   }
 
   toggleActive() {
-    const id = this.chatController.talkingToId;
-    const type = this.chatController.talkingToType;
+    const { id, type } = this.chatController.talkingTo;
 
     if (id !== -1) {
       const dataAttr = this.getDataAttr(id, type);

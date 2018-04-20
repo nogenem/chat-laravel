@@ -15,9 +15,11 @@ class ChatController {
 
     this.messages = [];
     this.userId = -1;
-    this.talkingToId = -1;
-    this.talkingToType = "";
-    this.sendingMsg = false;
+    this.talkingTo = {
+      id: -1,
+      type: "",
+      next_page_url: null
+    };
 
     this.onSendMessage = this.onSendMessage.bind(this);
     this.getMessageLi = this.getMessageLi.bind(this);
@@ -47,7 +49,7 @@ class ChatController {
         fromType = msg.to_type;
       }
 
-      if (fromId === this.talkingToId) {
+      if (fromId === this.talkingTo.id) {
         this.addMessageToChat(msg);
       } else {
         this.chatUsersController.updateUnreadMessages({
@@ -65,13 +67,21 @@ class ChatController {
     if (msgs === null) {
       // Error
       this.messages = [];
-      this.talkingToId = -1;
-      this.talkingToType = "";
+      this.talkingTo = {
+        id: -1,
+        type: "",
+        next_page_url: null
+      };
       this.chatContainer.style.display = "none";
     } else {
-      this.talkingToId = talkingToId;
-      this.talkingToType = talkingToType;
-      this.messages = msgs;
+      this.talkingTo = {
+        id: talkingToId,
+        type: talkingToType,
+        next_page_url: msgs.next_page_url
+      };
+      this.messages = msgs.data;
+      this.messages.reverse();
+
       this.showMessages();
       this.textarea.focus();
     }
@@ -89,8 +99,8 @@ class ChatController {
       axios
         .post("/chat/sendMessage", {
           body: this.textarea.value,
-          to_id: this.talkingToId,
-          to_type: this.talkingToType
+          to_id: this.talkingTo.id,
+          to_type: this.talkingTo.type
         })
         .then(resp => {
           this.addMessageToChat(resp.data);
@@ -116,8 +126,8 @@ class ChatController {
 
   showMessages() {
     this.chatUsersController.updateUnreadMessages({
-      fromId: this.talkingToId,
-      fromType: this.talkingToType,
+      fromId: this.talkingTo.id,
+      fromType: this.talkingTo.type,
       toDelete: true
     });
     const lis = this.messages.map(this.getMessageLi);

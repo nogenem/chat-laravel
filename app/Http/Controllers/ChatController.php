@@ -12,6 +12,9 @@ use App\Events\NewMessage;
 
 class ChatController extends Controller
 {
+
+    private $msgsPerPage = 25;
+
     /**
      * Display a listing of the resource.
      *
@@ -60,7 +63,8 @@ class ChatController extends Controller
                             ->where('to_type', Message::$USER_TYPE);
                     });
             })
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->paginate($this->msgsPerPage);
 
         return $messages->toJson();
     }
@@ -78,7 +82,8 @@ class ChatController extends Controller
 
         $messages = Message::where('to_id', $group_id)
             ->where('to_type', Message::$GROUP_TYPE)
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->paginate($this->msgsPerPage);
 
         return $messages->toJson();
     }

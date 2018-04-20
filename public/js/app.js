@@ -4700,9 +4700,11 @@ var ChatController = function () {
 
     this.messages = [];
     this.userId = -1;
-    this.talkingToId = -1;
-    this.talkingToType = "";
-    this.sendingMsg = false;
+    this.talkingTo = {
+      id: -1,
+      type: "",
+      next_page_url: null
+    };
 
     this.onSendMessage = this.onSendMessage.bind(this);
     this.getMessageLi = this.getMessageLi.bind(this);
@@ -4737,7 +4739,7 @@ var ChatController = function () {
           fromType = msg.to_type;
         }
 
-        if (fromId === _this.talkingToId) {
+        if (fromId === _this.talkingTo.id) {
           _this.addMessageToChat(msg);
         } else {
           _this.chatUsersController.updateUnreadMessages({
@@ -4756,13 +4758,21 @@ var ChatController = function () {
       if (msgs === null) {
         // Error
         this.messages = [];
-        this.talkingToId = -1;
-        this.talkingToType = "";
+        this.talkingTo = {
+          id: -1,
+          type: "",
+          next_page_url: null
+        };
         this.chatContainer.style.display = "none";
       } else {
-        this.talkingToId = talkingToId;
-        this.talkingToType = talkingToType;
-        this.messages = msgs;
+        this.talkingTo = {
+          id: talkingToId,
+          type: talkingToType,
+          next_page_url: msgs.next_page_url
+        };
+        this.messages = msgs.data;
+        this.messages.reverse();
+
         this.showMessages();
         this.textarea.focus();
       }
@@ -4782,8 +4792,8 @@ var ChatController = function () {
         this.sendingMsg = true;
         axios.post("/chat/sendMessage", {
           body: this.textarea.value,
-          to_id: this.talkingToId,
-          to_type: this.talkingToType
+          to_id: this.talkingTo.id,
+          to_type: this.talkingTo.type
         }).then(function (resp) {
           _this2.addMessageToChat(resp.data);
           _this2.textarea.value = "";
@@ -4807,8 +4817,8 @@ var ChatController = function () {
     key: "showMessages",
     value: function showMessages() {
       this.chatUsersController.updateUnreadMessages({
-        fromId: this.talkingToId,
-        fromType: this.talkingToType,
+        fromId: this.talkingTo.id,
+        fromType: this.talkingTo.type,
         toDelete: true
       });
       var lis = this.messages.map(this.getMessageLi);
@@ -9381,6 +9391,7 @@ var ChatUsersController = function () {
       var userId = li.dataset.userId;
 
       axios.get("/chat/getMessagesWithUser/" + userId).then(function (resp) {
+        console.log(resp.data);
         _this3.chatController.onMessagesReceived(resp.data, +userId, __WEBPACK_IMPORTED_MODULE_0__constants__["b" /* USER_TYPE */]);
         _this3.toggleActive();
       }).catch(function (err) {
@@ -9474,8 +9485,10 @@ var ChatUsersController = function () {
   }, {
     key: "toggleActive",
     value: function toggleActive() {
-      var id = this.chatController.talkingToId;
-      var type = this.chatController.talkingToType;
+      var _chatController$talki = this.chatController.talkingTo,
+          id = _chatController$talki.id,
+          type = _chatController$talki.type;
+
 
       if (id !== -1) {
         var dataAttr = this.getDataAttr(id, type);
