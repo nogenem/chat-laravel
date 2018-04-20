@@ -1,5 +1,7 @@
 import Echo from "laravel-echo";
 import io from "socket.io-client";
+import debounce from "lodash.debounce";
+
 import ChatUsersController from "./ChatUsersController";
 import { USER_TYPE, GROUP_TYPE } from "../constants";
 
@@ -20,13 +22,16 @@ class ChatController {
       type: "",
       next_page_url: null
     };
+    this.loadingNextPage = false;
 
     this.onSendMessage = this.onSendMessage.bind(this);
+    this.onChatScroll = this.onChatScroll.bind(this);
     this.getMessageLi = this.getMessageLi.bind(this);
   }
 
   init() {
     this.textarea.addEventListener("keydown", this.onSendMessage);
+    this.chatRow.addEventListener("wheel", debounce(this.onChatScroll, 150));
 
     window.io = io;
     window.Echo = new Echo({
@@ -116,6 +121,42 @@ class ChatController {
     }
   }
 
+  onChatScroll() {
+    if (
+      !this.loadingNextPage &&
+      this.talkingTo.next_page_url !== null &&
+      this.chatRow.scrollTop === 0
+    ) {
+      this.chat.insertAdjacentHTML(
+        "afterbegin",
+        '<li class="center red-text loading-msgs">Loading...</li>'
+      );
+      this.loadingNextPage = true;
+
+      axios
+        .get(this.talkingTo.next_page_url)
+        .then(({ data: resp }) => {
+          const msgs = resp.data;
+          msgs.reverse();
+
+          const lastScrollHeight = this.chatRow.scrollHeight;
+          const lis = msgs.map(this.getMessageLi);
+
+          this.chat.querySelector(".loading-msgs").remove();
+          this.chat.insertAdjacentHTML("afterbegin", lis.join(""));
+          this.chatRow.scrollTop = this.chatRow.scrollHeight - lastScrollHeight;
+
+          this.messages.unshift(...msgs);
+          this.talkingTo.next_page_url = resp.next_page_url;
+          this.loadingNextPage = false;
+        })
+        .catch(err => {
+          console.error(err.response ? err.response : err);
+          this.loadingNextPage = false;
+        });
+    }
+  }
+
   getMessageLi(msg) {
     const me = this.userId;
     const txt = msg.body.replace(new RegExp("\\r?\\n", "g"), "<br/>");
@@ -141,7 +182,7 @@ class ChatController {
     if (Array.isArray(msg)) return;
 
     this.messages.push(msg);
-    this.chat.innerHTML += this.getMessageLi(msg);
+    this.chat.insertAdjacentHTML("beforeend", this.getMessageLi(msg));
     this.chatRow.scrollTop = this.chatRow.scrollHeight;
   }
 }

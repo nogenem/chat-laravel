@@ -81,7 +81,6 @@ class ChatUsersController {
     axios
       .get(`/chat/getMessagesWithUser/${userId}`)
       .then(resp => {
-        console.log(resp.data);
         this.chatController.onMessagesReceived(resp.data, +userId, USER_TYPE);
         this.toggleActive();
       })

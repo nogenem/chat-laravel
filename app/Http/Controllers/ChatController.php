@@ -13,7 +13,7 @@ use App\Events\NewMessage;
 class ChatController extends Controller
 {
 
-    private $msgsPerPage = 25;
+    private $msgsPerPage = 50;
 
     /**
      * Display a listing of the resource.
